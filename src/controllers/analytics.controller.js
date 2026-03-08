@@ -1,16 +1,19 @@
 const Post = require("../models/post.model");
+const analyticsService = require("../services/analytics.service");
 
 exports.postsPerCategory = async (req, res) => {
     try {
-        const result = await Post.aggregate([
-            {
-                $group: {
-                    _id: "$category",
-                    totalPosts: { $sum: 1 }
-                }
-            }
-        ]);
-        res.json(result);
+        const data = await analyticsService.getPostsPerCategory();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.postsPerMonth = async (req, res) => {
+    try {
+        const data = await analyticsService.getPostsPerMonth();
+        res.json(data);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

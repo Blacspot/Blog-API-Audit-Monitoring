@@ -9,10 +9,10 @@ const titles = [
     'Top Travel Destinations', 'Healthy Lifestyle Tips', 'How to Learn Programming'
 ];
 const seedUsers = [
-    { firstName: 'Alice', lastName: 'Smith', email: 'alice@example.com', username: 'alice', password: 'password123', role: 'user' },
-    { firstName: 'John',  lastName: 'Doe',   email: 'john@example.com',  username: 'john',  password: 'password123', role: 'user' },
-    { firstName: 'Mary',  lastName: 'Jane',  email: 'mary@example.com',  username: 'mary',  password: 'password123', role: 'user' },
-    { firstName: 'Admin', lastName: 'User',  email: 'admin@example.com', username: 'admin', password: 'adminpass123', role: 'admin' },
+    { firstName: 'Alice',  lastName: 'Smith',   email: 'alice@example.com',  username: 'alice',  password: 'password123',  role: 'user' },
+    { firstName: 'John',   lastName: 'Doe',     email: 'john@example.com',   username: 'john',   password: 'password123',  role: 'user' },
+    { firstName: 'Mary',   lastName: 'Jane',    email: 'mary@example.com',   username: 'mary',   password: 'password123',  role: 'user' },
+    { firstName: 'James',  lastName: 'Kariuki', email: 'admin@example.com',  username: 'jkariuki', password: 'adminpass123', role: 'admin' },
 ];
 
 function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }

@@ -1,34 +1,57 @@
-# Syntecxhub Blog Data Analytics API
+# Secure Blog Api with Audit Monitoring
 
-A production-ready RESTful API built with **Node.js**, **Express**, and **MongoDB** that combines full blog CRUD operations with powerful data analytics powered by MongoDB aggregation pipelines.
+A production-ready RESTful API built with **Node.js**, **Express**, and **MongoDB** that combines full blog CRUD operations, JWT-based authentication, role-based access control, and a compliance-grade audit and monitoring layer.
 
-> Built to explore the intersection of backend architecture and real-world data analytics — not just a CRUD app, but a system that derives insights from its own data.
+> Built to explore the intersection of backend architecture, security, and real-world data analytics — not just a CRUD app, but a security-aware system that monitors its own activity, tracks changes, and derives insights from its own data.
 
 ---
 
 ## What It Does
 
-This API serves two purposes: it manages blog content and simultaneously provides analytical intelligence about that content. The analytics layer uses MongoDB's native aggregation framework to answer questions like *"Which authors publish most?"*, *"What categories are trending?"*, and *"How does publishing activity change month over month?"*
+This API serves three purposes: it manages blog content, enforces secure authenticated access, and simultaneously records a full audit trail of all system activity. The audit layer automatically captures every request, tracks resource changes, and exposes analytics endpoints restricted to administrators only.
 
 ---
 
 ## Features
 
+### Authentication & Authorization
+- User registration and login with **JWT tokens**
+- **Role-based access control** — `user` and `admin` roles
+- Passwords hashed with **bcrypt** before storage
+- Protected routes via `protect` middleware
+- Optional auth middleware for public routes that still capture user identity when a token is present
+
 ### Blog Management (CRUD)
 - Create, read, update, and delete blog posts
+- Posts are **linked to their author** via User ObjectId reference
+- Authors can only edit and delete their own posts
+- Admins can edit and delete any post
+- Author details populated on post retrieval (firstName, lastName, username)
 - Auto-generated timestamps on every post
-- Structured validation via Mongoose schema
 
-### Analytics Endpoints
-- **Posts per category** — see content distribution across topics
-- **Posts per month** — track publishing trends over time
+### Audit & Monitoring Layer
+- **Automatic middleware-based logging** — every request is recorded without manual intervention in controllers
+- **Change tracking** — `before` and `after` states captured on updates
+- **Immutable audit logs** — records cannot be edited or deleted
+- **Admin-only access** to all audit endpoints
+
+### Audit Analytics (Admin Only)
+- **GET /api/audit/logs** — full activity history
+- **GET /api/audit/logs/:id** — inspect a specific log entry
+- **GET /api/audit/stats** — breakdown of actions (GET, POST, PUT, DELETE)
+- **GET /api/audit/top-users** — most active users by request count
+- **GET /api/audit/activity** — daily activity trends over time
+
+### Blog Analytics
+- **Posts per category** — content distribution across topics
+- **Posts per month** — publishing trends over time
 - **Top authors** — ranked leaderboard of most prolific contributors
 - **Posts by date range** — filter and analyze activity within any time window
 
 ### Developer Experience
 - Modular, service-layer architecture (controllers → services → models)
 - Global error handling middleware
-- Database seed script for instant test data (100 sample posts)
+- Database seed script — creates 4 users (including 1 admin) and 100 sample posts with real ObjectId author references
 - Clean separation of concerns throughout
 
 ---
@@ -39,47 +62,48 @@ This API serves two purposes: it manages blog content and simultaneously provide
 |---|---|
 | Runtime | Node.js |
 | Framework | Express.js |
-| Database | MongoDB |
+| Database | MongoDB Atlas |
 | ODM | Mongoose |
+| Authentication | JSON Web Tokens (JWT) |
+| Password Hashing | bcrypt |
 | Package Manager | pnpm |
 
 ---
 
 ## Project Structure
-
 ```
-blog-data-analytics-api/
+syntecxhub-blog-api-v2/
 ├── src/
 │   ├── config/
-│   │   └── db.js                    # MongoDB connection
+│   │   └── db.js                      # MongoDB connection
 │   ├── controllers/
-│   │   ├── post.controller.js       # CRUD request handlers
-│   │   └── analytics.controller.js  # Analytics request handlers
+│   │   ├── auth.controller.js         # signup, login
+│   │   ├── post.controller.js         # CRUD request handlers
+│   │   └── analytics.controller.js    # Analytics request handlers
 │   ├── middleware/
-│   │   └── error.middleware.js      # Global error handler
+│   │   ├── auth.middleware.js         # protect, isAdmin, optionalProtect
+│   │   ├── audit.middleware.js        # automatic request logging
+│   │   └── error.middleware.js        # global error handler
 │   ├── models/
-│   │   └── post.model.js            # Mongoose schema & model
+│   │   ├── user.model.js              # User schema with role field
+│   │   ├── post.model.js              # Post schema with author reference
+│   │   └── auditLog.model.js          # Immutable audit log schema
 │   ├── routes/
-│   │   ├── post.routes.js           # /api/posts routes
-│   │   └── analytics.routes.js     # /api/analytics routes
+│   │   ├── auth.routes.js             # /api/auth
+│   │   ├── post.routes.js             # /api/posts
+│   │   ├── analytics.routes.js        # /api/analytics
+│   │   └── audit.routes.js            # /api/audit (admin only)
 │   ├── services/
-│   │   └── analytics.service.js    # Aggregation pipeline logic
+│   │   └── analytics.service.js       # Aggregation pipeline logic
 │   ├── scripts/
-│   │   └── seedPosts.js            # Database seeder
-│   └── app.js                      # Express app setup
-├── server.js                        # Entry point
+│   │   └── seedPosts.js               # Database seeder
+│   └── app.js                         # Express app setup
+├── server.js                           # Entry point
 ├── .env
 └── package.json
 ```
 
 ---
-
-## Getting Started
-
-### Prerequisites
-- Node.js v18+
-- MongoDB (local or Atlas)
-- pnpm
 
 
 ## Author

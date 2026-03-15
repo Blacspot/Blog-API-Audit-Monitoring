@@ -5,11 +5,11 @@ const getWindowStart = () => new Date(Date.now() - TIME_WINDOW_MS);
 
 // FIRST RULE: multiple failed login attempts within 10 minutes from same IP
 const checkBruteForce = async (log) => {
-    if (log.endpoint !== '/api/auth/login' || log.status !== 401) return null;
+    if (log.endpoint !== '/api/auth/login' || log.status !== 400) return null;
 
     const count = await AuditLog.countDocuments({
         endpoint: '/api/auth/login',
-        status: 401,
+        status: 400,
         ipAddress: log.ipAddress,
         timestamp: { $gte: getWindowStart() }
     });
@@ -31,6 +31,12 @@ const checkMassDeletion = async (log) => {
 // THIRD RULE: Same user logging in from 2+ different IPs within 10 minutes
 const checkIpHopping = async (log) => {
     if (log.endpoint !== '/api/auth/login' || log.status !== 200 || !log.userId) return null;
+
+    const loggedInUserId = log.after?.token ?
+       JSON.parse(Buffer.from(log.after.token.split('.')[1], 'base64').toString()).id
+       :null;
+
+    if (!loggedInUserId) return null;
 
     const recentLogins = await AuditLog.distinct('ipAddress', {
         endpoint: '/api/auth/login',

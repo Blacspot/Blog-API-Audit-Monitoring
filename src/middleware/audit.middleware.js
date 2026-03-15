@@ -7,7 +7,7 @@ const auditLogger = (resource) => {
 
         res.json = async (body) => {
             try {
-                await AuditLog.create({
+                const logData = {
                     userId:     req.user?.id || null,
                     action:     req.method,
                     resource,
@@ -19,7 +19,7 @@ const auditLogger = (resource) => {
                     before:     req.beforeState || null,
                     after:      ['POST', 'PUT', 'PATCH'].includes(req.method) ? body : null,
                     timestamp:  new Date()
-                });
+                };
 
                 //run detection before saving
                 const { isSuspicious, alertType } = await analyseLog(logData);

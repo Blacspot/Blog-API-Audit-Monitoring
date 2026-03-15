@@ -11,7 +11,10 @@ exports.createPost = async (req, res) => {
 
 exports.getPosts = async (req, res) => {
     try {
-        const posts = await Post.find().populate('author', 'firstName lastName username');
+        const filter = req.user.role === 'admin'
+            ? {}
+            : { author: req.user.id };
+        const posts = await Post.find(filter).populate('author', 'firstName lastName username');
         res.json(posts);
     } catch (error) {
         res.status(500).json({ message: error.message});
@@ -20,9 +23,15 @@ exports.getPosts = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate('author', 'firstName lastName username');
         if (!post) {
             return res.status(404).json({ message: "Post not found"});
+        }
+
+        const isOwner = post.author._id.toString() === req.user.id;
+        const isAdmin = req.user.role === 'admin';
+        if(!isOwner && !isAdmin) {
+            return res.status(403).json({ message: 'Access denied.' });
         }
         res.json(post);
     } catch (error) {

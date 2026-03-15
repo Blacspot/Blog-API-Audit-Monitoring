@@ -1,4 +1,5 @@
 const AuditLog = require('../models/auditLog.model');
+const { analyseLog } = require('../services/detection.service');
 
 const auditLogger = (resource) => {
     return async (req, res, next) => {
@@ -19,6 +20,17 @@ const auditLogger = (resource) => {
                     after:      ['POST', 'PUT', 'PATCH'].includes(req.method) ? body : null,
                     timestamp:  new Date()
                 });
+
+                //run detection before saving
+                const { isSuspicious, alertType } = await analyseLog(logData);
+
+                // Save with  detection results attached
+                await AuditLog.create({
+                    ...logData,
+                    isSuspicious,
+                    alertType
+                });
+
             } catch (err) {
                 console.error('Audit log error:', err.message);
             }
